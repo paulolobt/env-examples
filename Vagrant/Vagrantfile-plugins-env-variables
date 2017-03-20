@@ -1,0 +1,47 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# List plugins dependencies
+plugins_dependencies = %w( vagrant-gatling-rsync vagrant-docker-compose vagrant-vbguest vagrant-env )
+plugin_status = false
+plugins_dependencies.each do |plugin_name|
+  unless Vagrant.has_plugin? plugin_name
+    system("vagrant plugin install #{plugin_name}")
+    plugin_status = true
+    puts " #{plugin_name}  Dependencies installed"
+  end
+end
+
+# Restart Vagrant if any new plugin installed
+if plugin_status === true
+  exec "vagrant #{ARGV.join' '}"
+else
+  puts "All Plugin Dependencies already installed"
+end
+
+Vagrant.configure("2") do |config|
+    config.env.enable
+    config.vm.hostname = "cerbervs"
+    config.vm.box = "centos/7"
+    config.vm.network :forwarded_port,
+      guest: ENV['SERVICE_CERBERVS_PORT'],
+      host: ENV['SERVICE_CERBERVS_PORT']
+    config.vm.network :forwarded_port,
+      guest: ENV['SERVICE_CERBERVS_DB_PORT_EXTERNAL'],
+      host: ENV['SERVICE_CERBERVS_DB_PORT_EXTERNAL']
+    config.vm.network :public_network,
+      use_dhcp_assigned_default_route: true,
+      bridge: "en0: Ethernet"
+    config.vm.synced_folder './', '/home/vagrant', type: 'rsync'
+    config.gatling.rsync_on_startup = false
+
+    config.vm.provider "virtualbox" do |v|
+        v.name = "cerbervs"
+        v.memory = 2048
+        v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+    end
+    config.vm.provision :shell, inline: "yum -y update"
+    config.vm.provision :docker
+    config.vm.provision :docker_compose, yml: ["/home/vagrant/docker-compose.yml"]
+end
+
