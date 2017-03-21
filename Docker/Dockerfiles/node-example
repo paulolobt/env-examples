@@ -1,0 +1,20 @@
+FROM node:6.10.0
+
+ENV USER=cerbervs
+RUN useradd --user-group --create-home --shell /bin/false $USER
+
+ENV HOME=/home/$USER
+
+COPY package.json $HOME/service/
+RUN chown -R $USER:$USER $HOME/service
+
+USER $USER
+WORKDIR $HOME/service
+RUN npm cache clean && npm install --silent --progress=false
+
+USER root
+COPY . $HOME/service
+RUN chown -R $USER:$USER $(ls -A | grep -v node_modules)
+USER $USER
+
+CMD ["npm", "start"]
