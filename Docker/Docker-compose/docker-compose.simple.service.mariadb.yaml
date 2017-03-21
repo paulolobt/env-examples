@@ -1,0 +1,42 @@
+version: '2'
+services:
+  web:
+    build: .
+    environment:
+      - SERVICE_CERBERVS_DB_HOSTNAME
+      - SERVICE_CERBERVS_DB_PORT
+    ports:
+      - ${SERVICE_CERBERVS_PORT}:3000
+    volumes:
+     - .:/home/cerbervs/service
+     - /home/cerbervs/service/node_modules
+    depends_on:
+      - db
+    networks:
+      - servicenet
+    entrypoint: "./wait-database-connection.sh ${SERVICE_CERBERVS_DB_HOSTNAME}:${SERVICE_CERBERVS_DB_PORT} npm start"
+
+  db:
+    image:  mariadb:10.1.21
+    environment:
+      - MYSQL_DATABASE=${SERVICE_CERBERVS_DB_DATABASE}
+      - MYSQL_PASSWORD=${SERVICE_CERBERVS_DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${SERVICE_CERBERVS_DB_PASSWORD}
+      - MYSQL_USER=${SERVICE_CERBERVS_DB_USERNAME}
+    ports:
+      - ${SERVICE_CERBERVS_DB_PORT}:3306
+    volumes_from:
+      - dbdata
+    depends_on:
+      - dbdata
+    networks:
+      - servicenet
+
+  dbdata:
+    image: tianon/true
+    volumes:
+      - /var/lib/mysql
+
+networks:
+  servicenet:
+    driver: bridge
