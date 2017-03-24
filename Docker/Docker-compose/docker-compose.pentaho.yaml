@@ -1,0 +1,40 @@
+version: '2'
+services:
+  pentaho:
+    build: config/pentaho/.
+    volumes:
+      - ../analytics/etl:/root
+    environment:
+      - SERVICE_ELK_ELASTICSEARCH_HOSTNAME
+      - SERVICE_ELK_ELASTICSEARCH_PORT
+      - SERVICE_ELK_ELASTICSEARCH_PORT_TRANSPORT
+      - SERVICE_ELK_PENTAHO_DB_DATABASE_STAGE
+      - SERVICE_ELK_PENTAHO_DB_DATABASE_DW
+      - SERVICE_ELK_PENTAHO_DB_HOSTNAME
+      - SERVICE_ELK_PENTAHO_DB_PORT
+      - SERVICE_ELK_PENTAHO_DB_USER
+      - SERVICE_ELK_PENTAHO_DB_PASSWORD
+      - ENVIRONMENT=production
+    depends_on:
+      - pentahodb
+    links:
+      - pentahodb
+    restart: unless-stopped
+
+  pentahodb:
+    image: mariadb:10.1.20
+    volumes:
+      - ../analytics/scripts/schema_dw.sql:/docker-entrypoint-initdb.d/schema_dw.sql
+      - ../analytics/scripts/schema_stage.sql:/docker-entrypoint-initdb.d/schema_stage.sql
+    volumes_from:
+      - pentahodbdata
+    ports:
+      - "${SERVICE_ELK_PENTAHO_DB_PORT}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${SERVICE_ELK_PENTAHO_DB_PASSWORD}
+    restart: unless-stopped
+
+  pentahodbdata:
+    image: tianon/true
+    volumes:
+      - /var/lib/mysql
