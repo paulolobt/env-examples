@@ -21,14 +21,14 @@ end
 
 Vagrant.configure("2") do |config|
     config.env.enable
-    config.vm.hostname = "cerbervs"
+    config.vm.hostname = "vmhostname"
     config.vm.box = "centos/7"
     config.vm.network :forwarded_port,
-      guest: ENV['SERVICE_CERBERVS_PORT'],
-      host: ENV['SERVICE_CERBERVS_PORT']
+      guest: ENV['SERVICE_PORT'],
+      host: ENV['SERVICE_PORT']
     config.vm.network :forwarded_port,
-      guest: ENV['SERVICE_CERBERVS_DB_PORT_EXTERNAL'],
-      host: ENV['SERVICE_CERBERVS_DB_PORT_EXTERNAL']
+      guest: ENV['SERVICE_DB_PORT_EXTERNAL'],
+      host: ENV['SERVICE_DB_PORT_EXTERNAL']
     config.vm.network :public_network,
       use_dhcp_assigned_default_route: true,
       bridge: "en0: Ethernet"
@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
     config.gatling.rsync_on_startup = false
 
     config.vm.provider "virtualbox" do |v|
-        v.name = "cerbervs"
+        v.name = "vmname"
         v.memory = 2048
         v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
     end
