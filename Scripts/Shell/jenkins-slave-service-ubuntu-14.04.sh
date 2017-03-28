@@ -2,6 +2,10 @@
 #
 # /etc/init.d/jenkins-slave
 #
+# Update permission and owner =>
+# sudo chmod 755 /etc/init.d/jenkins-slave
+# sudo chown root:root /etc/init.d/jenkins-slave
+#
 # To add the script to autostart call =>
 # sudo update-rc.d jenkins-slave defaults
 #
