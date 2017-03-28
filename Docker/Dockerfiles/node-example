@@ -1,6 +1,6 @@
 FROM node:6.10.0
 
-ENV USER=cerbervs
+ENV USER=applicationName
 RUN useradd --user-group --create-home --shell /bin/false $USER
 
 ENV HOME=/home/$USER
