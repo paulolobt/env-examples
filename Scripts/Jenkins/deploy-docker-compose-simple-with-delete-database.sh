@@ -12,20 +12,19 @@ cd $RELEASE_DIR
 export AWS_S3_ENDPOINT=localhost:4569
 
 # Deploy app services
-#if [ "$DELETE_DATABASE" = "true" ]; then
-	# Stop all containers that have a `project_app*` prefix
-	#docker stop $(docker ps -q -f name=project_app*) || true
+if [ "$DELETE_DATABASE" = "true" ]; then
+    # Stop all containers that have a `project_app*` prefix
+    docker stop $(docker ps -q -f name=project_app*) || true
     
     # Delete all containers that have a `project_app*` prefix
-    #docker rm $(docker ps -aq -f name=project_app*) || true
-
-#else
-	# Stop all containers that have a `project_app*` prefix except data containers
-    #docker ps | grep project_app | grep -v 'data' | cut -d ' ' -f 1 | xargs docker stop || true
+    docker rm $(docker ps -aq -f name=project_app*) || true
+else
+    # Stop all containers that have a `project_app*` prefix except data containers
+    docker ps | grep project_app | grep -v 'data' | cut -d ' ' -f 1 | xargs docker stop || true
     
     # Delete all containers that have a `project_app*` prefix except data containers
-    #docker ps -a | grep project_app | grep -v 'data' | cut -d ' ' -f 1 | xargs docker rm || true
-#fi
+    docker ps -a | grep project_app | grep -v 'data' | cut -d ' ' -f 1 | xargs docker rm || true
+fi
 
 # Delete all images that have a `project_app*` prefix
 docker rmi $(docker images -q project_app*) || true
