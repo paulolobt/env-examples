@@ -1,7 +1,7 @@
 cd $WORKSPACE
 
 echo "========================================================================"
-echo " DEPLOYMENT ENV PRODUCTION (AWS)"
+echo " DEPLOYMENT ENV PRODUCTION WITH EB (AWS)"
 echo "========================================================================"
 
 echo "========================================================================"
@@ -10,7 +10,7 @@ echo "========================================================================"
 git archive --format=zip HEAD > aws-package.zip
 
 echo "========================================================================"
-echo " REGISTRY ELASTIC BEANSTALK PACKAGE - [eprofile-env]"
+echo " REGISTRY ELASTIC BEANSTALK PACKAGE - [application-env]"
 echo "========================================================================"
 eb init
 
