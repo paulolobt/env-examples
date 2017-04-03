@@ -1,11 +1,11 @@
 #!/bin/sh
 #===============================================================================
 #
-#          FILE:  ths-cli.sh
+#          FILE:  app-cli.sh
 #
-#         USAGE:  ./ths-cli.sh [options] [services]
+#         USAGE:  ./app-cli.sh [options] [services]
 #
-#   DESCRIPTION:  THS environment client to manage services and data containers.
+#   DESCRIPTION:  App environment client to manage services and data containers.
 #
 #       OPTIONS:  -h, --help            show help
 #                 -d, --delete          delete all containers including data container
@@ -20,9 +20,9 @@
 #===============================================================================
 
 usage () {
-    echo "./ths-cli.sh - THS environment client"
+    echo "./app-cli.sh - App environment client"
     echo " "
-    echo "./ths-cli.sh [options] [services]"
+    echo "./app-cli.sh [options] [services]"
     echo " "
     echo "options:"
     echo "-h, --help            show help"
@@ -30,46 +30,46 @@ usage () {
     echo "-u, --update          update all containers except data container"
     echo " "
     echo "services:"
-    echo "<empty>               THS services + THS Analytics services"
-    echo "ths                   THS services"
-    echo "analytics             THS Analytics services"
+    echo "<empty>               App services + App Analytics services"
+    echo "app                   App services"
+    echo "analytics             App Analytics services"
 }
 
 stopContainer () {
     if [ "$1" = "--no-data" ]; then
-        # Stop all containers that have a `thsenv_` prefix except data containers
-        docker ps | grep thsenv | grep -v 'db\|elasticsearch' | cut -d ' ' -f 1 | xargs docker stop
+        # Stop all containers that have a `appenv_` prefix except data containers
+        docker ps | grep appenv | grep -v 'db\|elasticsearch' | cut -d ' ' -f 1 | xargs docker stop
     else
-        # Stop all containers that have a `thsenv_` prefix
-        docker stop $(docker ps -q -f name=thsenv_*)
+        # Stop all containers that have a `appenv_` prefix
+        docker stop $(docker ps -q -f name=appenv_*)
     fi
 }
 
 deleteContainer () {
     if [ "$1" = "--no-data" ]; then
-        # Delete all containers that have a `thsenv_` prefix except data containers
-        docker ps -a | grep thsenv | grep -v 'db\|elasticsearch' | cut -d ' ' -f 1 | xargs docker rm
+        # Delete all containers that have a `appenv_` prefix except data containers
+        docker ps -a | grep appenv | grep -v 'db\|elasticsearch' | cut -d ' ' -f 1 | xargs docker rm
     else
-        # Delete all containers that have a `thsenv_` prefix
-        docker rm $(docker ps -aq -f name=thsenv_*)
+        # Delete all containers that have a `appenv_` prefix
+        docker rm $(docker ps -aq -f name=appenv_*)
     fi
 }
 
 deleteContainerImage () {
-    # Delete all images that have a `thsenv_` prefix
-    docker rmi $(docker images -q thsenv_*)
+    # Delete all images that have a `appenv_` prefix
+    docker rmi $(docker images -q appenv_*)
 }
 
-deployTHSServices () {
+deployAppServices () {
     # Install Magento container
     docker-compose -f docker-compose.magento.yml run --rm magentosetup
 
     docker-compose -f docker-compose.magento.yml up -d magentoapp
 
-    # Deploy THS proxy container
+    # Deploy App proxy container
     docker-compose -f docker-compose.common.yml up -d
 
-    # Deploy THS Admin container
+    # Deploy App Admin container
     docker-compose -f docker-compose.admin.yml up -d webadmin
 
     # Deploy Totem container
@@ -77,12 +77,12 @@ deployTHSServices () {
         docker-compose -f docker-compose.totem.yml up -d
     fi
 
-    # Deploy THS Web Store and Service Store container
+    # Deploy App Web Store and Service Store container
     docker-compose -f docker-compose.store.yml up -d webstore
 }
 
-deployTHSAnalyticsServices () {
-    # Deploy THS proxy container
+deployAppAnalyticsServices () {
+    # Deploy App proxy container
     docker-compose -f docker-compose.common.yml up -d
 
     # Deploy ELK containers
@@ -93,7 +93,7 @@ deployTHSAnalyticsServices () {
     fi
 }
 
-validateTHSEnv () {
+validateAppEnv () {
     # Check if the environment variables exists
     if [ $SERVICE_STORE_HOSTNAME ] && [ $SERVICE_MAGENTO_HOSTNAME ] &&
     [ $SERVICE_ADMIN_HOSTNAME ] && [ $SERVICE_STORE_WEB_HOSTNAME ]; then
@@ -103,7 +103,7 @@ validateTHSEnv () {
     fi
 }
 
-validateTHSAnalyticsEnv () {
+validateAppAnalyticsEnv () {
     # Check if the environment variables exists
     if [ $SERVICE_ELK_ELASTICSEARCH_HOSTNAME ] && [ $SERVICE_ELK_KIBANA_HOSTNAME ] &&
     [ $SERVICE_ELK_LOGSTASH_HOSTNAME ] && [ $SERVICE_ELK_PENTAHO_DB_HOSTNAME ]; then
@@ -122,31 +122,31 @@ main () {
                 ;;
             --delete)
                 shift
-                if validateTHSEnv || validateTHSAnalyticsEnv; then
+                if validateAppEnv || validateAppAnalyticsEnv; then
                     stopContainer
                     deleteContainer
                     deleteContainerImage
                 else
-                    echo 'Error: If THS services set SERVICE_STORE_HOSTNAME, SERVICE_ADMIN_HOSTNAME, SERVICE_STORE_WEB_HOSTNAME, SERVICE_MAGENTO_HOSTNAME. Also Analytics services SERVICE_ELK_ELASTICSEARCH_HOSTNAME, SERVICE_ELK_KIBANA_HOSTNAME, SERVICE_ELK_LOGSTASH_HOSTNAME and SERVICE_ELK_PENTAHO_DB_HOSTNAME environment variables.'
+                    echo 'Error: If App services set SERVICE_STORE_HOSTNAME, SERVICE_ADMIN_HOSTNAME, SERVICE_STORE_WEB_HOSTNAME, SERVICE_MAGENTO_HOSTNAME. Also Analytics services SERVICE_ELK_ELASTICSEARCH_HOSTNAME, SERVICE_ELK_KIBANA_HOSTNAME, SERVICE_ELK_LOGSTASH_HOSTNAME and SERVICE_ELK_PENTAHO_DB_HOSTNAME environment variables.'
                     exit 1
                 fi
                 break
                 ;;
             --update)
                 shift
-                if validateTHSEnv || validateTHSAnalyticsEnv; then
+                if validateAppEnv || validateAppAnalyticsEnv; then
                     stopContainer --no-data
                     deleteContainer --no-data
                     deleteContainerImage
                 else
-                    echo 'Error: If THS services set SERVICE_STORE_HOSTNAME, SERVICE_ADMIN_HOSTNAME, SERVICE_STORE_WEB_HOSTNAME, SERVICE_MAGENTO_HOSTNAME. Also Analytics services SERVICE_ELK_ELASTICSEARCH_HOSTNAME, SERVICE_ELK_KIBANA_HOSTNAME, SERVICE_ELK_LOGSTASH_HOSTNAME and SERVICE_ELK_PENTAHO_DB_HOSTNAME environment variables.'
+                    echo 'Error: If App services set SERVICE_STORE_HOSTNAME, SERVICE_ADMIN_HOSTNAME, SERVICE_STORE_WEB_HOSTNAME, SERVICE_MAGENTO_HOSTNAME. Also Analytics services SERVICE_ELK_ELASTICSEARCH_HOSTNAME, SERVICE_ELK_KIBANA_HOSTNAME, SERVICE_ELK_LOGSTASH_HOSTNAME and SERVICE_ELK_PENTAHO_DB_HOSTNAME environment variables.'
                     exit 1
                 fi
                 break
                 ;;
             *)
-                echo "./ths-cli: '$1' is not a valid option."
-                echo "See './ths-cli --help'."
+                echo "./app-cli: '$1' is not a valid option."
+                echo "See './app-cli --help'."
                 exit 1
                 break
                 ;;
@@ -154,9 +154,9 @@ main () {
     done
 
     if [ $# -eq 0 ] ; then
-        if validateTHSEnv && validateTHSAnalyticsEnv; then
-            deployTHSAnalyticsServices
-            deployTHSServices
+        if validateAppEnv && validateAppAnalyticsEnv; then
+            deployAppAnalyticsServices
+            deployAppServices
         else
             echo 'Error: Set SERVICE_STORE_HOSTNAME, SERVICE_ADMIN_HOSTNAME, SERVICE_STORE_WEB_HOSTNAME, SERVICE_MAGENTO_HOSTNAME, SERVICE_ELK_ELASTICSEARCH_HOSTNAME, SERVICE_ELK_KIBANA_HOSTNAME, SERVICE_ELK_LOGSTASH_HOSTNAME and SERVICE_ELK_PENTAHO_DB_HOSTNAME environment variables.'
             exit 1
@@ -164,11 +164,11 @@ main () {
     else
         while test $# -gt 0; do
             case "$1" in
-                ths)
+                app)
                     shift
-                    if validateTHSEnv; then
-                        deployTHSServices
-                        echo "THS"
+                    if validateAppEnv; then
+                        deployAppServices
+                        echo "App"
                     else
                         echo 'Error: Set SERVICE_STORE_HOSTNAME, SERVICE_ADMIN_HOSTNAME, SERVICE_STORE_WEB_HOSTNAME and SERVICE_MAGENTO_HOSTNAME environment variables.'
                         exit 1
@@ -176,8 +176,8 @@ main () {
                     ;;
                 analytics)
                     shift
-                    if validateTHSAnalyticsEnv; then
-                        deployTHSAnalyticsServices
+                    if validateAppAnalyticsEnv; then
+                        deployAppAnalyticsServices
                     else
                         echo 'Error: Set SERVICE_ELK_ELASTICSEARCH_HOSTNAME, SERVICE_ELK_KIBANA_HOSTNAME and SERVICE_ELK_LOGSTASH_HOSTNAME environment variables.'
                         exit 1
