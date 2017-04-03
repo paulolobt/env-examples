@@ -11,7 +11,7 @@ var logger = new (winston.Logger)({
             host: process.env.SERVICE_ELK_LOGSTASH_HOSTNAME,
             port: process.env.SERVICE_ELK_LOGSTASH_PORT,
             max_connect_retries: -1,
-            node_name: 'ths-admin'
+            node_name: 'app-admin'
         })
     ]
 });
@@ -88,8 +88,8 @@ function randomGetProducInfo(dates) {
                 details: 'Product details...'
             },
             method: 'get...',
-            thsAppId: faker.random.array_element(APP_IDS),
-            thsAppContext: faker.random.array_element(APP_CTX),
+            appId: faker.random.array_element(APP_IDS),
+            appContext: faker.random.array_element(APP_CTX),
             timestamp: timestamp
         });
 }
