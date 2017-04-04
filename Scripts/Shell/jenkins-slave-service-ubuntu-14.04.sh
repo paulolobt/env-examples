@@ -24,7 +24,7 @@
 
 Name="Jenkins Slave"
 InstanceName="application-name"
-JenkinsCertification="97e748d31442e5944e347a7c7adfff8605f8c4d41c5a953c786a63b8c4375e61"
+JenkinsCertification="<certification hash>"
 JenkinsUrl="http://jenkins.test"
 Log="/var/log/jenkins"
 Pidfile="/var/run/jenkins-slave.pid"
