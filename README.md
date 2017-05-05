@@ -1,3 +1,3 @@
 # env-examples
 
-Test 2
+Test
