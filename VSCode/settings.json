@@ -1,0 +1,7 @@
+{
+    "terminal.integrated.shell.linux": "/bin/zsh",
+    "window.zoomLevel": 0,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.renderWhitespace": "all",
+    "files.trimTrailingWhitespace": true
+}
